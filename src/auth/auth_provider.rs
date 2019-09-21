@@ -13,8 +13,8 @@ use crate::util::Result;
 use crate::TwitchClient;
 
 pub trait AuthProvider {
-    fn client_id(&self) -> String;
-    fn current_scopes(&self) -> Vec<String>;
+    fn client_id(&self) -> &str;
+    fn current_scopes(&self) -> &[String];
     fn access_token(&'a mut self, scope: Option<Vec<&'a str>>) -> Pin<Box<dyn Future<Output=Result<AccessToken>> + Send + 'a>>;
     fn set_access_token(&mut self, token: AccessToken);
 }
@@ -52,15 +52,12 @@ impl StaticAuthProvider {
 }
 
 impl AuthProvider for StaticAuthProvider {
-    fn client_id(&self) -> String {
-        self.client_id.clone()
+    fn client_id(&self) -> &str {
+        self.client_id.as_str()
     }
 
-    fn current_scopes(&self) -> Vec<String> {
-        match self.scopes.borrow() {
-            Some(scopes) => scopes.clone(),
-            None => Vec::new()
-        }
+    fn current_scopes(&self) -> &[String] {
+        self.scopes.as_ref().map_or(&[], Vec::as_slice)
     }
 
     fn access_token(&'a mut self, scope: Option<Vec<&'a str>>) -> Pin<Box<dyn Future<Output=Result<AccessToken>> + Send + 'a>> {
@@ -77,7 +74,7 @@ impl AuthProvider for StaticAuthProvider {
                             self.client_id.clone(),
                             self.access_token.borrow().as_ref().unwrap().access_token(),
                         ).await?;
-                        self.scopes = Some(token_info.scopes())
+                        self.scopes = Some(token_info.scopes().to_owned())
                     }
                     let current_scopes = self.scopes.borrow().as_ref().unwrap();
                     if scopes.iter().any(|scope| !current_scopes.iter().any(|inner_scope| inner_scope == scope)) {
@@ -115,12 +112,12 @@ impl ClientCredentialsAuthProvider {
 }
 
 impl AuthProvider for ClientCredentialsAuthProvider {
-    fn client_id(&self) -> String {
-        self.client_id.clone()
+    fn client_id(&self) -> &str {
+        self.client_id.as_str()
     }
 
-    fn current_scopes(&self) -> Vec<String> {
-        Vec::new()
+    fn current_scopes(&self) -> &[String] {
+        &[]
     }
 
     fn access_token(&'a mut self, scope: Option<Vec<&'a str>>) -> Pin<Box<dyn Future<Output=Result<AccessToken>> + Send + 'a>> {

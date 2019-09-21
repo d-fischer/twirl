@@ -22,12 +22,12 @@ impl TokenInfo {
         }
     }
 
-    pub fn client_id(&self) -> String {
-        self.data.client_id.clone()
+    pub fn client_id(&self) -> &str {
+        self.data.client_id.as_str()
     }
 
-    pub fn scopes(&self) -> Vec<String> {
-        self.data.scopes.clone()
+    pub fn scopes(&self) -> &[String] {
+        self.data.scopes.as_slice()
     }
 
     pub fn expiry_date(&self) -> Option<SystemTime> {

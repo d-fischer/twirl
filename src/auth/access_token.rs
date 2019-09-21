@@ -1,7 +1,5 @@
 use std::option::Option;
 use std::time::SystemTime;
-use std::borrow::Borrow;
-
 #[derive(Clone, Deserialize, Debug)]
 pub struct AccessTokenData {
     access_token: String,
@@ -55,19 +53,16 @@ impl AccessToken {
         }
     }
 
-    pub fn access_token(&self) -> String {
-        self.data.access_token.clone()
+    pub fn access_token(&self) -> &str {
+        self.data.access_token.as_str()
     }
 
-    pub fn refresh_token(&self) -> Option<String> {
-        self.data.refresh_token.clone()
+    pub fn refresh_token(&self) -> Option<&str> {
+        self.data.refresh_token.as_ref().map(String::as_str)
     }
 
-    pub fn scope(&self) -> Vec<String> {
-        match self.data.scope.borrow() {
-            Some(scope) => scope.split(' ').map(|s| s.to_string()).collect(),
-            None => Vec::new()
-        }
+    pub fn scopes(&self) -> Vec<String> {
+        self.data.scope.as_ref().map_or_else(|| Vec::new(), |scope| scope.split(' ').map(str::to_string).collect())
     }
 
     pub fn is_expired(&self) -> bool {

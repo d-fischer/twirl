@@ -24,7 +24,7 @@ pub struct TwitchAPICall<'a, T = ()> {
     method: Method,
     params: Vec<(Cow<'a, str>, Cow<'a, str>)>,
     body: Option<T>,
-    scope: Option<&'a str>,
+    scope: Option<String>,
 }
 
 impl<'a> TwitchAPICall<'a> {
@@ -64,7 +64,7 @@ impl<'a, T> TwitchAPICall<'a, T> {
     }
 
     pub fn scope(&self) -> Option<&str> {
-        self.scope.clone()
+        self.scope.as_ref().map(String::as_str)
     }
 
     pub fn method(&self) -> Method {
@@ -79,7 +79,7 @@ pub struct TwitchAPICallBuilder<'a, T = ()> {
     __method: Method,
     __params: Vec<(Cow<'a, str>, Cow<'a, str>)>,
     __body: Option<T>,
-    __scope: Option<&'a str>,
+    __scope: Option<String>,
 }
 
 impl<'a, T> TwitchAPICallBuilder<'a, T> {
@@ -116,6 +116,11 @@ impl<'a, T> TwitchAPICallBuilder<'a, T> {
 
     pub fn with_param(mut self, key: impl Into<Cow<'a, str>>, value: impl Into<Cow<'a, str>>) -> Self {
         self.__params.push((key.into(), value.into()));
+        self
+    }
+
+    pub fn with_scope(mut self, scope: impl Into<String>) -> Self {
+        self.__scope = Some(scope.into());
         self
     }
 

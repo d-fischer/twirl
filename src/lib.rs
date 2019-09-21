@@ -58,7 +58,7 @@ impl TwitchClient {
         if token.is_expired() {
             // TODO
         }
-        Self::call_api_with_credentials(call, self.auth.client_id(), token.access_token()).await
+        Self::call_api_with_credentials(call, self.auth.client_id(), token.access_token().to_string()).await
     }
 
     pub async fn call_api_with_credentials<T, B>(call: TwitchAPICall<'_, B>, client_id: impl StringOption, access_token: impl StringOption) -> Result<T>
@@ -69,7 +69,8 @@ impl TwitchClient {
         }
 
         let url = call.full_url();
-        let uri: hyper::Uri = url.into_string().parse()?;
+        let url_str = url.into_string();
+        let uri: hyper::Uri = url_str.parse()?;
 
         let mut req = Request::builder();
         req.uri(uri);
@@ -90,7 +91,7 @@ impl TwitchClient {
                 let data: T = serde_json::from_slice(&chunk)?;
                 Ok(data)
             }
-            false => bail!(format!("request failed with {}", res.status()))
+            false => bail!(format!("request to {} failed with status {}", url_str, res.status()))
         }
     }
 
