@@ -40,7 +40,7 @@ impl StaticAuthProvider {
     pub fn with_access_token(client_id: String, access_token: String, scopes: Option<Vec<String>>) -> Self {
         Self {
             client_id,
-            access_token: Some(AccessToken::new_static(
+            access_token: Some(AccessToken::with_access_token_and_scope(
                 access_token,
                 scopes.borrow().as_ref().map(|sc| sc.join(" ")),
             )),

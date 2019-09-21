@@ -36,7 +36,7 @@ impl AccessToken {
         }
     }
 
-    pub(crate) fn new_static(access_token: String, scope: Option<String>) -> Self {
+    pub(crate) fn with_access_token_and_scope(access_token: String, scope: Option<String>) -> Self {
         Self {
             data: AccessTokenData {
                 access_token,
@@ -48,7 +48,7 @@ impl AccessToken {
         }
     }
 
-    pub fn new_with_obtainment_date(data: AccessTokenData, obtainment_date: SystemTime) -> AccessToken {
+    pub fn with_obtainment_date(data: AccessTokenData, obtainment_date: SystemTime) -> AccessToken {
         AccessToken {
             data,
             obtainment_date

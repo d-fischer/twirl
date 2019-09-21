@@ -1,8 +1,11 @@
 [package]
 name = "twirl"
+description = "Access the Twitch API with ease."
 version = "0.1.0"
 authors = ["Daniel Fischer <daniel@d-fischer.dev>"]
+license = "MIT"
 edition = "2018"
+repository = "https://github.com/d-fischer/twirl"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
