@@ -2,6 +2,8 @@ use futures::future::FutureExt;
 use futures::Future;
 use std::{
     borrow::{Borrow, Cow},
+    error::Error,
+    fmt::Display,
     pin::Pin,
     option::Option,
 };
@@ -73,7 +75,7 @@ impl AuthProvider for StaticAuthProvider {
                         }
                         let token_info = TwitchClient::get_token_info_for_access_token(
                             self.client_id.clone(),
-                            self.access_token.borrow().as_ref().unwrap().access_token()
+                            self.access_token.borrow().as_ref().unwrap().access_token(),
                         ).await?;
                         self.scopes = Some(token_info.scopes())
                     }
@@ -169,15 +171,14 @@ impl<'a> AuthProviderError<'a> {
     }
 }
 
-impl<'a> std::error::Error for AuthProviderError<'a> {
+impl<'a> Error for AuthProviderError<'a> {
     fn description(&self) -> &str {
         self.description.borrow()
     }
 }
 
-impl<'a> std::fmt::Display for AuthProviderError<'a> {
-    //noinspection RsUnresolvedReference shut up CLion
+impl<'a> Display for AuthProviderError<'a> {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        std::error::Error::description(self).fmt(f)
+        Error::description(self).fmt(f)
     }
 }

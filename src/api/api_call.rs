@@ -1,7 +1,11 @@
 use http::uri::{Scheme, Uri};
 use hyper::Method;
 use url::Url;
-use std::borrow::Cow;
+use std::{
+    borrow::Cow,
+    error::Error,
+    fmt::Display
+};
 
 use crate::util::Result;
 
@@ -146,15 +150,14 @@ impl<'a> TwitchAPICallBuilderError<'a> {
     }
 }
 
-impl<'a> std::error::Error for TwitchAPICallBuilderError<'a> {
+impl<'a> Error for TwitchAPICallBuilderError<'a> {
     fn description(&self) -> &str {
         self.description
     }
 }
 
-impl<'a> std::fmt::Display for TwitchAPICallBuilderError<'a> {
-    //noinspection RsUnresolvedReference shut up CLion
+impl<'a> Display for TwitchAPICallBuilderError<'a> {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        std::error::Error::description(self).fmt(f)
+        Error::description(self).fmt(f)
     }
 }
