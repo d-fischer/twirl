@@ -1,10 +1,8 @@
-use futures::future::FutureExt;
-use futures::Future;
+use futures::future::{BoxFuture, FutureExt};
 use std::{
     borrow::{Borrow, Cow},
     error::Error,
     fmt::Display,
-    pin::Pin,
     option::Option,
 };
 
@@ -15,12 +13,12 @@ use crate::TwitchClient;
 pub trait AuthProvider {
     fn client_id(&self) -> &str;
     fn current_scopes(&self) -> &[String];
-    fn access_token(&'a mut self, scope: Option<Vec<&'a str>>) -> Pin<Box<dyn Future<Output=Result<AccessToken>> + Send + 'a>>;
+    fn access_token(&'a mut self, scope: Option<Vec<&'a str>>) -> BoxFuture<'a, Result<AccessToken>>;
     fn set_access_token(&mut self, token: AccessToken);
 }
 
 pub trait RefreshableAuthProvider: AuthProvider {
-    fn refresh(&'a mut self) -> Pin<Box<dyn Future<Output=Result<AccessToken>> + Send + 'a>>;
+    fn refresh(&'a mut self) -> BoxFuture<'a, Result<AccessToken>>;
 }
 
 #[derive(Clone)]
@@ -60,7 +58,7 @@ impl AuthProvider for StaticAuthProvider {
         self.scopes.as_ref().map_or(&[], Vec::as_slice)
     }
 
-    fn access_token(&'a mut self, scope: Option<Vec<&'a str>>) -> Pin<Box<dyn Future<Output=Result<AccessToken>> + Send + 'a>> {
+    fn access_token(&'a mut self, scope: Option<Vec<&'a str>>) -> BoxFuture<'a, Result<AccessToken>> {
         async move {
             if let Some(scopes) = scope {
                 if !scopes.is_empty() {
@@ -120,7 +118,7 @@ impl AuthProvider for ClientCredentialsAuthProvider {
         &[]
     }
 
-    fn access_token(&'a mut self, scope: Option<Vec<&'a str>>) -> Pin<Box<dyn Future<Output=Result<AccessToken>> + Send + 'a>> {
+    fn access_token(&'a mut self, scope: Option<Vec<&'a str>>) -> BoxFuture<'a, Result<AccessToken>> {
         async move {
             if let Some(s) = scope {
                 if s.len() > 0 {
@@ -146,7 +144,7 @@ impl AuthProvider for ClientCredentialsAuthProvider {
 }
 
 impl RefreshableAuthProvider for ClientCredentialsAuthProvider {
-    fn refresh(&'a mut self) -> Pin<Box<dyn Future<Output=Result<AccessToken>> + Send + 'a>> {
+    fn refresh(&'a mut self) -> BoxFuture<'a, Result<AccessToken>> {
         async move {
             let token = TwitchClient::get_app_access_token(self.client_id.clone(), self.client_secret.clone()).await?;
             self.current_token = Some(token.clone());
