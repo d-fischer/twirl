@@ -5,7 +5,7 @@ pub struct AccessTokenData {
     access_token: String,
     refresh_token: Option<String>,
     expires_in: Option<u64>,
-    scope: Option<String>,
+    scope: Option<Vec<String>>,
 }
 
 #[derive(Clone)]
@@ -34,7 +34,7 @@ impl AccessToken {
         }
     }
 
-    pub(crate) fn with_access_token_and_scope(access_token: String, scope: Option<String>) -> Self {
+    pub(crate) fn with_access_token_and_scope(access_token: String, scope: Option<Vec<String>>) -> Self {
         Self {
             data: AccessTokenData {
                 access_token,
@@ -62,7 +62,7 @@ impl AccessToken {
     }
 
     pub fn scopes(&self) -> Vec<String> {
-        self.data.scope.as_ref().map_or_else(|| Vec::new(), |scope| scope.split(' ').map(str::to_string).collect())
+        self.data.scope.as_ref().map_or_else(|| Vec::new(), |scope| scope.clone())
     }
 
     pub fn is_expired(&self) -> bool {

@@ -42,7 +42,7 @@ impl StaticAuthProvider {
             client_id,
             access_token: Some(AccessToken::with_access_token_and_scope(
                 access_token,
-                scopes.borrow().as_ref().map(|sc| sc.join(" ")),
+                scopes.clone(),
             )),
             scopes,
         }
