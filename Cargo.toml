@@ -1,7 +1,7 @@
 [package]
 name = "twirl"
 description = "Access the Twitch API with ease."
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Daniel Fischer <daniel@d-fischer.dev>"]
 license = "MIT"
 edition = "2018"
