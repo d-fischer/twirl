@@ -2,18 +2,21 @@
 #include <cstdlib>
 
 extern "C" {
-    struct TwitchClient {};
+    struct ApiClient {};
+    struct CAuthProvider {};
     struct User {
         char *id;
         char *login;
     };
 
-    TwitchClient *createTwitchClientWithCredentials(char *clientId, char *accessToken);
-    User *getMe(TwitchClient *twitchClient);
+    CAuthProvider *createStaticAuthProvider(char *clientId, char *accessToken);
+    ApiClient *createApiClient(CAuthProvider *authProvider);
+    User *getMe(ApiClient *twitchClient);
 }
 
 int main() {
-    TwitchClient *client = createTwitchClientWithCredentials(getenv("TWITCH_CLIENT_ID"), getenv("TWITCH_ACCESS_TOKEN"));
+    CAuthProvider *auth = createStaticAuthProvider(getenv("TWITCH_CLIENT_ID"), getenv("TWITCH_ACCESS_TOKEN"));
+    ApiClient *client = createApiClient(auth);
     User *user = getMe(client);
     std::cout << user << std::endl;
     std::cout << user->login << " = " << user->id << std::endl;

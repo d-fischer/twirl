@@ -10,7 +10,7 @@ use std::{
 use crate::util::Result;
 
 #[derive(Clone)]
-pub enum TwitchAPICallType {
+pub enum TwitchApiCallType {
     Kraken,
     Helix,
     Auth,
@@ -18,46 +18,45 @@ pub enum TwitchAPICallType {
 }
 
 #[derive(Clone)]
-pub struct TwitchAPICall<'a, T = ()> {
+pub struct TwitchApiCall<'a, T = ()> {
     url: String,
-    call_type: TwitchAPICallType,
+    call_type: TwitchApiCallType,
     method: Method,
     params: Vec<(Cow<'a, str>, Cow<'a, str>)>,
     body: Option<T>,
     scope: Option<String>,
 }
 
-impl<'a> TwitchAPICall<'a> {
+impl<'a> TwitchApiCall<'a> {
     pub fn builder_empty() -> TwitchAPICallBuilder<'a> {
         TwitchAPICallBuilder::<'a>::new()
     }
 }
 
-impl<'a, T> TwitchAPICall<'a, T> {
+impl<'a, T> TwitchApiCall<'a, T> {
     pub fn builder() -> TwitchAPICallBuilder<'a, T> {
         TwitchAPICallBuilder::<'a, T>::new()
     }
 
     pub fn full_url(&self) -> Url {
-        let mut builder = Uri::builder();
-        builder
+        let builder = Uri::builder()
             .scheme(Scheme::HTTPS)
             .authority("api.twitch.tv");
 
         let uri = match self.call_type {
-            TwitchAPICallType::Kraken => {
+            TwitchApiCallType::Kraken => {
                 let path = format!("/kraken/{}", self.url.trim_start_matches('/'));
                 builder.path_and_query(path.as_str()).build().unwrap()
             }
-            TwitchAPICallType::Helix => {
+            TwitchApiCallType::Helix => {
                 let path = format!("/helix/{}", self.url.trim_start_matches('/'));
                 builder.path_and_query(path.as_str()).build().unwrap()
             }
-            TwitchAPICallType::Auth => {
+            TwitchApiCallType::Auth => {
                 let path = format!("/oauth2/{}", self.url.trim_start_matches('/'));
                 builder.authority("id.twitch.tv").path_and_query(path.as_str()).build().unwrap()
             }
-            TwitchAPICallType::Custom => self.url.parse().unwrap()
+            TwitchApiCallType::Custom => self.url.parse().unwrap()
         };
 
         Url::parse_with_params(uri.to_string().as_str(), self.params.to_vec()).unwrap()
@@ -75,7 +74,7 @@ impl<'a, T> TwitchAPICall<'a, T> {
 #[derive(Clone)]
 pub struct TwitchAPICallBuilder<'a, T = ()> {
     __url: Option<String>,
-    __call_type: TwitchAPICallType,
+    __call_type: TwitchApiCallType,
     __method: Method,
     __params: Vec<(Cow<'a, str>, Cow<'a, str>)>,
     __body: Option<T>,
@@ -86,7 +85,7 @@ impl<'a, T> TwitchAPICallBuilder<'a, T> {
     pub fn new() -> Self {
         Self {
             __url: None,
-            __call_type: TwitchAPICallType::Helix,
+            __call_type: TwitchApiCallType::Helix,
             __method: Method::GET,
             __params: Vec::new(),
             __body: None,
@@ -99,7 +98,7 @@ impl<'a, T> TwitchAPICallBuilder<'a, T> {
         self
     }
 
-    pub fn with_call_type(mut self, call_type: TwitchAPICallType) -> Self {
+    pub fn with_call_type(mut self, call_type: TwitchApiCallType) -> Self {
         self.__call_type = call_type;
         self
     }
@@ -124,14 +123,14 @@ impl<'a, T> TwitchAPICallBuilder<'a, T> {
         self
     }
 
-    pub fn build(self) -> Result<TwitchAPICall<'a, T>> {
+    pub fn build(self) -> Result<TwitchApiCall<'a, T>> {
         if self.__url.is_none() {
             return Err(Box::new(TwitchAPICallBuilderError::new("No URL given")));
         }
         if std::mem::size_of::<T>() > 0 && self.__body.is_none() {
             return Err(Box::new(TwitchAPICallBuilderError::new("No body given")));
         }
-        Ok(TwitchAPICall {
+        Ok(TwitchApiCall {
             url: self.__url.unwrap(),
             call_type: self.__call_type,
             method: self.__method,
@@ -163,6 +162,6 @@ impl<'a> Error for TwitchAPICallBuilderError<'a> {
 
 impl<'a> Display for TwitchAPICallBuilderError<'a> {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        Error::description(self).fmt(f)
+        self.to_string().fmt(f)
     }
 }

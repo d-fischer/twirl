@@ -1,11 +1,12 @@
 use std::option::Option;
 use std::time::SystemTime;
+
 #[derive(Clone, Deserialize, Debug)]
 pub struct AccessTokenData {
     access_token: String,
     refresh_token: Option<String>,
     expires_in: Option<u64>,
-    scope: Option<Vec<String>>,
+    scope: Vec<String>,
 }
 
 #[derive(Clone)]
@@ -18,7 +19,7 @@ impl AccessToken {
     pub fn new(data: AccessTokenData) -> Self {
         Self {
             data,
-            obtainment_date: SystemTime::now()
+            obtainment_date: SystemTime::now(),
         }
     }
 
@@ -28,28 +29,40 @@ impl AccessToken {
                 access_token: "".to_string(),
                 refresh_token: None,
                 expires_in: None,
-                scope: None
+                scope: vec![],
             },
-            obtainment_date: SystemTime::now()
+            obtainment_date: SystemTime::now(),
         }
     }
 
-    pub(crate) fn with_access_token_and_scope(access_token: String, scope: Option<Vec<String>>) -> Self {
+    pub(crate) fn with_access_token(access_token: String) -> Self {
         Self {
             data: AccessTokenData {
                 access_token,
-                scope,
+                refresh_token: None,
                 expires_in: None,
-                refresh_token: None
+                scope: vec![],
             },
-            obtainment_date: SystemTime::now()
+            obtainment_date: SystemTime::now(),
         }
     }
 
-    pub fn with_obtainment_date(data: AccessTokenData, obtainment_date: SystemTime) -> AccessToken {
-        AccessToken {
+    pub(crate) fn with_access_token_and_scopes(access_token: String, scopes: Vec<String>) -> Self {
+        Self {
+            data: AccessTokenData {
+                access_token,
+                refresh_token: None,
+                expires_in: None,
+                scope: scopes,
+            },
+            obtainment_date: SystemTime::now(),
+        }
+    }
+
+    pub fn with_obtainment_date(data: AccessTokenData, obtainment_date: SystemTime) -> Self {
+        Self {
             data,
-            obtainment_date
+            obtainment_date,
         }
     }
 
@@ -61,8 +74,8 @@ impl AccessToken {
         self.data.refresh_token.as_ref().map(String::as_str)
     }
 
-    pub fn scopes(&self) -> Vec<String> {
-        self.data.scope.as_ref().map_or_else(|| Vec::new(), |scope| scope.clone())
+    pub fn scopes(&self) -> &[String] {
+        &self.data.scope
     }
 
     pub fn is_expired(&self) -> bool {

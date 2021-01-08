@@ -14,21 +14,21 @@ include = [
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-chrono = "0.4.9"
+chrono = "0.4.19"
 connect = "0.1.1"
-ffi-support = "0.3.5"
-futures-preview = "0.3.0-alpha.18"
-futures-util-preview = "0.3.0-alpha.18"
-http = "0.1.18"
-hyper = { version = "0.13.0-alpha.2", features = ["unstable-stream"] }
-hyper-tls = "0.4.0-alpha.2"
+ffi-support = "0.4.2"
+futures = "0.3.8"
+futures-util = "0.3.8"
+http = "0.2.2"
+hyper = { version = "0.14.2", features = ["client", "http1", "stream", "full"] }
+hyper-tls = "0.5.0"
 lazy_static = "1.4.0"
-serde = "1.0.100"
-serde_derive = "1.0.100"
-serde_json = "1.0.40"
-simple-error = "0.2.1"
-tokio = "0.2.0-alpha.5"
-url = "2.1.0"
+serde = "1.0.118"
+serde_derive = "1.0.118"
+serde_json = "1.0.61"
+simple-error = "0.2.2"
+tokio = { version = "1.0.1", features = ["macros", "rt-multi-thread"] }
+url = "2.2.0"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
